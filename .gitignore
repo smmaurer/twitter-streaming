@@ -1,3 +1,4 @@
 _archive/
 data/
 keys.py
+*.pyc

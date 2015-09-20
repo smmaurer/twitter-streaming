@@ -5,11 +5,11 @@
 # Python 'TwitterAPI' module: https://github.com/geduldig/TwitterAPI
 
 from TwitterAPI import TwitterAPI
-import json
 from datetime import datetime as dt
+import json
 import time
+from keys import *   # keys.py in same directory
 
-import keys  # from keys.py in same directory
 api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_secret)
 
 OUTPUT_PATH = 'data/'
@@ -18,7 +18,6 @@ TIME_LIMIT = 2  # in seconds, 0 for none
 ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
 
 BBOX = '-126,29,-113,51'  # West Coast from Tijuana to Vancouver and east to edge of CA
-stream()
 
 def stream():
 	r = api.request('statuses/filter', {'locations': BBOX})
@@ -59,5 +58,7 @@ def stream():
 			continue
 		
 		break
-	
+
+stream()
+
 # to do - how to capture diagnostic info about stream quality?
