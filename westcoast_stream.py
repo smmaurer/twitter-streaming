@@ -15,7 +15,7 @@ api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_s
 
 OUTPUT_PATH = 'data/'
 FNAME_BASE = 'westcoast-'
-TIME_LIMIT = 00  # in seconds, 0 for none
+TIME_LIMIT = 0  # in seconds, 0 for none
 ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
 
 BBOX = '-126,29,-113,51'  # West Coast from Tijuana to Vancouver and east to edge of CA
