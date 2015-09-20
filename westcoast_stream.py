@@ -12,7 +12,7 @@ import time
 import keys  # from keys.py in same directory
 api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_secret)
 
-PATH = 'data/'
+OUTPUT_PATH = 'data/'
 FNAME_BASE = 'westcoast-'
 TIME_LIMIT = 2  # in seconds, 0 for none
 ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
@@ -32,7 +32,7 @@ def stream():
 		
 				if (tcount == 0):
 					ts = dt.now().strftime('%Y%m%d-%H%M%S')
-					fname = PATH + FNAME_BASE + ts + '.json'
+					fname = OUTPUT_PATH + FNAME_BASE + ts + '.json'
 					f = open(fname, 'w')
 				
 				try:
