@@ -20,12 +20,13 @@ ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
 
 BBOX = '-126,29,-113,51'  # West Coast from Tijuana to Vancouver and east to edge of CA
 
-t0 = time.time()  # initialization time
+t0 = None  # initialization time
 tcount = 0  # tweet count in current file
 delay = 0.5  # reconnection delay in seconds
 
 
 def stream():
+	global delay, t0
 
 	while True:
 		try:
@@ -34,6 +35,7 @@ def stream():
 			_test = r.get_iterator()
 			print dt.now()
 			print "Connected to streaming endpoint"
+			t0 = time.time()
 			delay = 0.5  # reset the delay after a successful connection
 			save_tweets(r)
 			r.close()
@@ -51,6 +53,7 @@ def stream():
 
 
 def save_tweets(r):
+	global tcount
 
 	try:
 		for tweet in r.get_iterator():
