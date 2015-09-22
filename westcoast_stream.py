@@ -1,8 +1,13 @@
-# Sam Maurer, Sept 2015
-# Streams tweets to a file
+__author__ = "Sam Maurer"
+__date__ = "September 20, 2015"
+__license__ = "MIT"
 
-# Twitter REST API: https://dev.twitter.com/docs/api/1.1
-# Python 'TwitterAPI' module: https://github.com/geduldig/TwitterAPI
+'''
+Streams tweets to a file.
+
+Twitter API documentation: https://dev.twitter.com/docs/api/1.1
+Python 'TwitterAPI' library: https://github.com/geduldig/TwitterAPI
+'''
 
 from TwitterAPI import TwitterAPI
 from datetime import datetime as dt
