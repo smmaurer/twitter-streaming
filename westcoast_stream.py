@@ -20,14 +20,19 @@ ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
 
 BBOX = '-126,29,-113,51'  # West Coast from Tijuana to Vancouver and east to edge of CA
 
+t0 = time.time()  # initialization time
+tcount = 0  # tweet count in current file
+delay = 0.5  # reconnection delay in seconds
+
 
 def stream():
-	delay = 0.5  # initial reconnection delay in seconds
 
 	while True:
 		try:
-			r = api.request('statuses/filter', {'locations': BBOX, 'stall_warnings': 'true'})
+			# is it 'stall_warning' singular or plural? documentation disagrees
+			r = api.request('statuses/filter', {'locations': BBOX, 'stall_warning': 'true'})
 			_test = r.get_iterator()
+			print dt.now()
 			print "Connected to streaming endpoint"
 			delay = 0.5  # reset the delay after a successful connection
 			save_tweets(r)
@@ -38,6 +43,7 @@ def stream():
 			# common: TwitterRequestError, TwitterConnectionError, httplib.IncompleteRead
 			r.close()  # try to close old stream
 			delay = delay * 2
+			print dt.now()
 			print "%s: %s" % (type(e).__name__, e)
 			print "Attempting to reconnect after %d sec. delay" % (delay,)
 			time.sleep(delay)
@@ -45,14 +51,13 @@ def stream():
 
 
 def save_tweets(r):
-	tcount = 0 
-	t0 = time.time()
 
 	try:
 		for tweet in r.get_iterator():
 	
 			# log stall warnings
 			if 'warning' in tweet:
+				print dt.now()
 				print tweet['warning']
 				continue
 
@@ -85,3 +90,11 @@ def save_tweets(r):
 
 
 stream()
+
+
+# TO DO
+# - make this into a proper class so we can deal with status variables better
+# - print updates about number of tweets collected and length of time
+# - allow setting for number of tweets to collect
+# - make sure file is closed if there's a KeyboardInterrupt while trying to reconnect
+#   after the stream is dropped
