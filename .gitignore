@@ -1,4 +1,4 @@
-**/.DS_Store
 _archive/
-keys.py
-*.pyc
+**/.DS_Store
+**/keys.py
+**/*.pyc
