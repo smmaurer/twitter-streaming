@@ -16,15 +16,23 @@ FNAME_BASE = 'stream-'  # filename prefix (timestamp will be appended)
 TIME_LIMIT = 0  # in seconds, 0 for none
 ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
 DELAY = 1.0  # initial reconnection delay in seconds
-BBOX = '-126,29,-113,51'  # SET TO BAY AREA
+BBOX = '-126,29,-113,51'  # bounding box (default is US west coast)
 
 
 class Stream(object):
 
-	def __init__(self):
+	def __init__(
+			self,
+			fname_base = FNAME_BASE,
+			time_limit = TIME_LIMIT,
+			bbox = BBOX ):
 	
 		self.api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_secret)
-		
+
+		self.fname_base = fname_base
+		self.time_limit = time_limit
+		self.bbox = bbox
+
 		self.t0 = None  # initialization time
 		self.tcount = 0  # tweet count in current file
 		self._reset_delay()
@@ -41,7 +49,8 @@ class Stream(object):
 		while True:
 			try:
 				# is it 'stall_warning' singular or plural? documentation disagrees
-				r = self.api.request('statuses/filter', {'locations': BBOX, 'stall_warning': 'true'})
+				r = self.api.request('statuses/filter', 
+						{'locations': self.bbox, 'stall_warning': 'true'})
 				_test = r.get_iterator()
 				print dt.now()
 				print "Connected to streaming endpoint"
@@ -60,7 +69,7 @@ class Stream(object):
 				return
 
 			except Exception, e:
-				# catch dropped streaming and try to reconnect -- typically
+				# catch dropped stream and try to reconnect -- typically
 				# TwitterRequestError, TwitterConnectionError, httplib.IncompleteRead
 				self.delay = self.delay * 2
 				print dt.now()
@@ -85,7 +94,7 @@ class Stream(object):
 				# initialize new output file if tweet count is 0
 				if (self.tcount == 0):
 					ts = dt.now().strftime('%Y%m%d-%H%M%S')
-					fname = OUTPUT_PATH + FNAME_BASE + ts + '.json'
+					fname = OUTPUT_PATH + self.fname_base + ts + '.json'
 					f = open(fname, 'w')
 		
 				# save to file, or skip if the data is incomplete or has encoding errors
@@ -101,7 +110,7 @@ class Stream(object):
 					self.tcount = 0
 
 				# if we reach a time limit, end the script
-				if (TIME_LIMIT > 0) & ((time.time() - self.t0) >= TIME_LIMIT):
+				if (self.time_limit > 0) & ((time.time() - self.t0) >= self.time_limit):
 					f.close()
 					return
 
