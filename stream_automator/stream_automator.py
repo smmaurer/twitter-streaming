@@ -53,7 +53,7 @@ class Stream(object):
 				r = self.api.request('statuses/filter', 
 						{'locations': self.bbox, 'stall_warning': 'true'})
 				_test = r.get_iterator()
-				print dt.now()
+				print "\n" + dt.now()
 				print "Connected to streaming endpoint"
 				self.t0 = time.time()
 				self._reset_delay()  # reset the delay after a successful connection
@@ -78,7 +78,7 @@ class Stream(object):
 				# - TwitterAPI throws TwitterRequestError, TwitterConnectionError
 				# - httplib.IncompleteRead triggers the latter
 				self.delay = self.delay * 2
-				print dt.now()
+				print "\n" + dt.now()
 				print "%s: %s" % (type(e).__name__, e)
 				print "Attempting to reconnect after %d sec. delay" % (self.delay,)
 				time.sleep(self.delay)
@@ -92,7 +92,7 @@ class Stream(object):
 
 			# log stall warnings
 			if 'warning' in tweet:
-				print dt.now()
+				print "\n" + dt.now()
 				print tweet['warning']
 				continue
 
