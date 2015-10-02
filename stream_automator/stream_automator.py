@@ -12,11 +12,11 @@ from keys import *   # keys.py in same directory
 
 
 OUTPUT_PATH = 'data/'  # output path relative to the script calling this class
-FNAME_BASE = 'stream-'  # filename prefix (timestamp will be appended)
-TIME_LIMIT = 0  # in seconds, 0 for none
+FNAME_BASE = 'stream-'  # default filename prefix (timestamp will be appended)
+TIME_LIMIT = 0  # default time limit in seconds, 0 for none
 ROWS_PER_FILE = 500000  # 500k tweets is about 1.6 GB uncompressed
-DELAY = 1.0  # initial reconnection delay in seconds
-BBOX = '-126,29,-113,51'  # bounding box (default is US west coast)
+DELAY = 5.0  # initial reconnection delay in seconds
+BBOX = '-126,29,-113,51'  # default bounding box (US west coast)
 
 
 class Stream(object):
@@ -34,6 +34,7 @@ class Stream(object):
 		self.bbox = bbox
 
 		self.t0 = None  # initialization time
+		self.f = None  # output file placeholder
 		self.tcount = 0  # tweet count in current file
 		self._reset_delay()
 	
@@ -61,6 +62,10 @@ class Stream(object):
 				return
 		
 			except KeyboardInterrupt:
+				try:
+					self.f.close()
+				except:
+					pass
 				print
 				return
 			
@@ -82,40 +87,34 @@ class Stream(object):
 	def _save_tweets(self, r):
 		'''Read tweets from the open connection and save to disk'''
 
-		try:
-			for tweet in r.get_iterator():
+		for tweet in r.get_iterator():
+
+			# log stall warnings
+			if 'warning' in tweet:
+				print dt.now()
+				print tweet['warning']
+				continue
+
+			# initialize new output file if tweet count is 0
+			if (self.tcount == 0):
+				ts = dt.now().strftime('%Y%m%d-%H%M%S')
+				fname = OUTPUT_PATH + self.fname_base + ts + '.json'
+				self.f = open(fname, 'w')
 	
-				# log stall warnings
-				if 'warning' in tweet:
-					print dt.now()
-					print tweet['warning']
-					continue
+			# save to file, or skip if the data is incomplete or has encoding errors
+			try:
+				self.f.write(json.dumps(tweet) + '\n')
+				self.tcount += 1
+			except:
+				continue
+	
+			# close the output file when it fills up
+			if (self.tcount >= ROWS_PER_FILE):
+				self.f.close()
+				self.tcount = 0
 
-				# initialize new output file if tweet count is 0
-				if (self.tcount == 0):
-					ts = dt.now().strftime('%Y%m%d-%H%M%S')
-					fname = OUTPUT_PATH + self.fname_base + ts + '.json'
-					f = open(fname, 'w')
-		
-				# save to file, or skip if the data is incomplete or has encoding errors
-				try:
-					f.write(json.dumps(tweet) + '\n')
-					self.tcount += 1
-				except:
-					continue
-		
-				# close the output file when it fills up
-				if (self.tcount >= ROWS_PER_FILE):
-					f.close()
-					self.tcount = 0
-
-				# if we reach a time limit, end the script
-				if (self.time_limit > 0) & ((time.time() - self.t0) >= self.time_limit):
-					f.close()
-					return
-
-		except KeyboardInterrupt:
-			f.close()
-			print
-			return
+			# if we reach a time limit, end the script
+			if (self.time_limit > 0) & ((time.time() - self.t0) >= self.time_limit):
+				self.f.close()
+				return
 
