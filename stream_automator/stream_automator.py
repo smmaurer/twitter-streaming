@@ -74,8 +74,9 @@ class Stream(object):
 				return
 
 			except Exception, e:
-				# catch dropped stream and try to reconnect -- typically
-				# TwitterRequestError, TwitterConnectionError, httplib.IncompleteRead
+				# catch dropped stream and try to reconnect:
+				# - TwitterAPI throws TwitterRequestError, TwitterConnectionError
+				# - httplib.IncompleteRead triggers the latter
 				self.delay = self.delay * 2
 				print dt.now()
 				print "%s: %s" % (type(e).__name__, e)
