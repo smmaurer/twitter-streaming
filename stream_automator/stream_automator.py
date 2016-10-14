@@ -27,7 +27,7 @@ class Stream(object):
 			time_limit = TIME_LIMIT,
 			bbox = BBOX ):
 	
-		self.api = TwitterAPI(consumer_key, consumer_secret, access_token_key, access_token_secret)
+		self.api = TwitterAPI(consumer_key, consumer_secret, access_token, access_token_secret)
 
 		self.fname_base = fname_base
 		self.time_limit = time_limit
