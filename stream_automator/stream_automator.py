@@ -49,9 +49,8 @@ class Stream(object):
 		
 		while True:
 			try:
-				# is it 'stall_warning' singular or plural? documentation disagrees
 				r = self.api.request('statuses/filter', 
-						{'locations': self.bbox, 'stall_warning': 'true'})
+						{'locations': self.bbox, 'stall_warnings': 'true'})
 				_test = r.get_iterator()
 				print "\n" + str(dt.now())
 				print "Connected to streaming endpoint"
